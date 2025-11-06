@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Система тестирования сотрудников</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            touch-action: manipulation;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            font-size: 14px;
+            display: block;
+        }
+
+        main {
+            min-height: calc(100vh - 120px);
+            padding: 20px 0;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 24px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            margin: 5px;
+            width: calc(100% - 10px);
+            min-height: 50px;
+            touch-action: manipulation;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-success {
+            background: #27ae60;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+        }
+
+        .btn-warning {
+            background: #f39c12;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .question {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .options {
+            margin-top: 15px;
+        }
+
+        .option {
+            margin-bottom: 12px;
+            padding: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            background: white;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+        }
+
+        .option:active {
+            background: #f0f0f0;
+        }
+
+        .option.selected {
+            background: #e1f0fa;
+            border-color: #3498db;
+        }
+
+        .timer {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+            padding: 12px;
+            background: #ecf0f1;
+            border-radius: 8px;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: #ecf0f1;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .results {
+            text-align: center;
+        }
+
+        .score {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .admin-panel {
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px 8px;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        th {
+            background: #34495e;
+            color: white;
+            font-weight: bold;
+        }
+
+        .warning-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .warning-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .warning-content h3 {
+            color: #e74c3c;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .login-form {
+            max-width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            font-size: 16px;
+            min-height: 50px;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .navigation {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .navigation .btn {
+            width: 100%;
+        }
+
+        /* Стили для мобильных устройств */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo {
+                margin-bottom: 10px;
+                font-size: 18px;
+            }
+            
+            nav ul {
+                justify-content: center;
+                width: 100%;
+            }
+            
+            nav ul li {
+                margin: 2px;
+            }
+            
+            nav ul li a {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+            
+            .card {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .btn {
+                padding: 16px 20px;
+                font-size: 16px;
+                margin: 4px 0;
+            }
+            
+            .option {
+                padding: 14px;
+                font-size: 15px;
+                min-height: 55px;
+            }
+            
+            table {
+                font-size: 12px;
+            }
+            
+            th, td {
+                padding: 8px 6px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 16px;
+            }
+            
+            nav ul li a {
+                font-size: 11px;
+                padding: 5px 8px;
+            }
+            
+            .timer {
+                font-size: 16px;
+                padding: 10px;
+            }
+            
+            .score {
+                font-size: 20px;
+            }
+            
+            table {
+                font-size: 11px;
+            }
+        }
+
+        /* Улучшения для касаний */
+        @media (hover: none) and (pointer: coarse) {
+            .option {
+                min-height: 65px;
+                padding: 18px;
+            }
+            
+            .btn {
+                min-height: 55px;
+                padding: 18px 20px;
+            }
+            
+            input[type="text"],
+            input[type="password"] {
+                min-height: 55px;
+                font-size: 18px; /* Увеличиваем для удобства ввода */
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">📊 Тестирование сотрудников</div>
+                <nav>
+                    <ul>
+                        <li><a href="#" id="nav-home">🏠 Главная</a></li>
+                        <li><a href="#" id="nav-admin" class="hidden">⚙️ Админ</a></li>
+                        <li><a href="#" id="nav-login">🔐 Вход</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Главная страница -->
+            <div id="home-page" class="card">
+                <h1>Добро пожаловать! 👋</h1>
+                <p>Система тестирования знаний сотрудников</p>
+                
+                <div class="alert alert-info">
+                    <p><strong>📝 Инструкция:</strong></p>
+                    <ul>
+                        <li>✅ 10 вопросов</li>
+                        <li>⏱️ 15 минут</li>
+                        <li>🚫 Не переключать вкладки</li>
+                        <li>🏁 Нажмите "Завершить тест"</li>
+                    </ul>
+                </div>
+                
+                <div class="form-group">
+                    <label for="user-id">👤 Ваш идентификатор:</label>
+                    <input type="text" id="user-id" placeholder="Например: Иванов И.И.">
+                </div>
+                
+                <button id="start-test" class="btn btn-success">🎯 Начать тест</button>
+            </div>
+
+            <!-- Страница теста -->
+            <div id="test-page" class="card hidden">
+                <div class="timer" id="timer">⏱️ Осталось: 15:00</div>
+                <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
+                
+                <div id="question-container">
+                    <!-- Вопросы будут добавляться динамически -->
+                </div>
+                
+                <div class="navigation">
+                    <button id="prev-question" class="btn">⬅️ Назад</button>
+                    <button id="next-question" class="btn">Вперед ➡️</button>
+                    <button id="finish-test" class="btn btn-danger">🏁 Завершить</button>
+                </div>
+            </div>
+
+            <!-- Страница результатов -->
+            <div id="results-page" class="card hidden">
+                <div class="results">
+                    <h2>📊 Результаты</h2>
+                    <div class="score" id="score-result"></div>
+                    <div id="time-result"></div>
+                    <div id="violations-result"></div>
+                    <button id="back-to-home" class="btn">🔄 На главную</button>
+                </div>
+            </div>
+
+            <!-- Страница входа для администратора -->
+            <div id="login-page" class="card hidden">
+                <h2>🔐 Вход для администратора</h2>
+                <div class="login-form">
+                    <div class="form-group">
+                        <label for="admin-login">👤 Логин:</label>
+                        <input type="text" id="admin-login" placeholder="Введите логин">
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-password">🔒 Пароль:</label>
+                        <input type="password" id="admin-password" placeholder="Введите пароль">
+                    </div>
+                    <button id="admin-login-btn" class="btn">🚪 Войти</button>
+                </div>
+            </div>
+
+            <!-- Административная панель -->
+            <div id="admin-page" class="card hidden">
+                <h2>⚙️ Административная панель</h2>
+                <div class="admin-panel">
+                    <h3>📈 Результаты тестов</h3>
+                    <table id="results-table">
+                        <thead>
+                            <tr>
+                                <th>👤 ID</th>
+                                <th>📅 Дата</th>
+                                <th>✅ Правильно</th>
+                                <th>📝 Всего</th>
+                                <th>⏱️ Время</th>
+                                <th>🚫 Наруш.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Данные будут добавляться динамически -->
+                        </tbody>
+                    </table>
+                    
+                    <h3>📋 Журнал нарушений</h3>
+                    <table id="violations-table">
+                        <thead>
+                            <tr>
+                                <th>👤 ID</th>
+                                <th>📅 Дата</th>
+                                <th>⚠️ Тип</th>
+                                <th>ℹ️ Инфо</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Данные будут добавляться динамически -->
+                        </tbody>
+                    </table>
+                    
+                    <button id="admin-logout" class="btn btn-danger">🚪 Выйти</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Модальное окно предупреждения -->
+    <div id="warning-modal" class="warning-modal hidden">
+        <div class="warning-content">
+            <h3>⚠️ Внимание!</h3>
+            <p>Вы покинули страницу теста. Нарушение зафиксировано.</p>
+            <p>При повторном нарушении тест завершится автоматически.</p>
+            <button id="warning-ok" class="btn btn-warning">👌 Понятно</button>
+        </div>
+    </div>
+
+    <script>
+        // Все вопросы теста
+        const testData = {
+            title: "Тест для сотрудников",
+            timeLimit: 15 * 60, // 15 минут в секундах
+            questions: [
+                {
+                    id: 1,
+                    text: "Какой язык программирования статически типизирован?",
+                    options: [
+                        { id: 1, text: "Python" },
+                        { id: 2, text: "JavaScript" },
+                        { id: 3, text: "Java", correct: true },
+                        { id: 4, text: "Ruby" }
+                    ]
+                },
+                {
+                    id: 2,
+                    text: "Что такое HTTP?",
+                    options: [
+                        { id: 1, text: "Протокол передачи гипертекста", correct: true },
+                        { id: 2, text: "Язык разметки" },
+                        { id: 3, text: "Система управления базами данных" },
+                        { id: 4, text: "Фреймворк для веб-разработки" }
+                    ]
+                },
+                {
+                    id: 3,
+                    text: "Какой метод HTTP используется для получения данных?",
+                    options: [
+                        { id: 1, text: "POST" },
+                        { id: 2, text: "PUT" },
+                        { id: 3, text: "DELETE" },
+                        { id: 4, text: "GET", correct: true }
+                    ]
+                },
+                {
+                    id: 4,
+                    text: "Что означает SQL?",
+                    options: [
+                        { id: 1, text: "Structured Query Language", correct: true },
+                        { id: 2, text: "Simple Question Language" },
+                        { id: 3, text: "System Query Logic" },
+                        { id: 4, text: "Structured Question Logic" }
+                    ]
+                },
+                {
+                    id: 5,
+                    text: "Какой тип данных примитивный в JavaScript?",
+                    options: [
+                        { id: 1, text: "Object" },
+                        { id: 2, text: "Array" },
+                        { id: 3, text: "String", correct: true },
+                        { id: 4, text: "Function" }
+                    ]
+                },
+                {
+                    id: 6,
+                    text: "Что такое CSS?",
+                    options: [
+                        { id: 1, text: "Язык программирования" },
+                        { id: 2, text: "Система управления контентом" },
+                        { id: 3, text: "Каскадные таблицы стилей", correct: true },
+                        { id: 4, text: "Фреймворк для JavaScript" }
+                    ]
+                },
+                {
+                    id: 7,
+                    text: "Какой тег HTML для ссылки?",
+                    options: [
+                        { id: 1, text: "<link>" },
+                        { id: 2, text: "<a>", correct: true },
+                        { id: 3, text: "<href>" },
+                        { id: 4, text: "<url>" }
+                    ]
+                },
+                {
+                    id: 8,
+                    text: "Что такое API?",
+                    options: [
+                        { id: 1, text: "Автоматическая программа интерфейса" },
+                        { id: 2, text: "Интерфейс прикладного программирования", correct: true },
+                        { id: 3, text: "Автоматизированный процесс интеграции" },
+                        { id: 4, text: "Асинхронный программный интерфейс" }
+                    ]
+                },
+                {
+                    id: 9,
+                    text: "Какой метод массива создает новый массив?",
+                    options: [
+                        { id: 1, text: "push" },
+                        { id: 2, text: "pop" },
+                        { id: 3, text: "map", correct: true },
+                        { id: 4, text: "shift" }
+                    ]
+                },
+                {
+                    id: 10,
+                    text: "Что такое Git?",
+                    options: [
+                        { id: 1, text: "Язык программирования" },
+                        { id: 2, text: "Система контроля версий", correct: true },
+                        { id: 3, text: "Операционная система" },
+                        { id: 4, text: "База данных" }
+                    ]
+                }
+            ]
+        };
+
+        // Состояние приложения
+        const state = {
+            currentPage: 'home',
+            userId: '',
+            currentQuestion: 0,
+            userAnswers: {},
+            startTime: null,
+            endTime: null,
+            timeLeft: testData.timeLimit,
+            timerInterval: null,
+            violations: 0,
+            isAdmin: false
+        };
+
+        // Элементы страниц
+        const homePage = document.getElementById('home-page');
+        const testPage = document.getElementById('test-page');
+        const resultsPage = document.getElementById('results-page');
+        const loginPage = document.getElementById('login-page');
+        const adminPage = document.getElementById('admin-page');
+        const warningModal = document.getElementById('warning-modal');
+
+        // Запуск при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            // Навигация
+            document.getElementById('nav-home').addEventListener('click', function(e) {
+                e.preventDefault();
+                showHomePage();
+            });
+            document.getElementById('nav-admin').addEventListener('click', function(e) {
+                e.preventDefault();
+                showAdminPage();
+            });
+            document.getElementById('nav-login').addEventListener('click', function(e) {
+                e.preventDefault();
+                showLoginPage();
+            });
+            
+            // Главная страница
+            document.getElementById('start-test').addEventListener('click', startTest);
+            
+            // Страница теста
+            document.getElementById('prev-question').addEventListener('click', prevQuestion);
+            document.getElementById('next-question').addEventListener('click', nextQuestion);
+            document.getElementById('finish-test').addEventListener('click', finishTest);
+            
+            // Страница результатов
+            document.getElementById('back-to-home').addEventListener('click', showHomePage);
+            
+            // Страница входа
+            document.getElementById('admin-login-btn').addEventListener('click', adminLogin);
+            
+            // Админ-панель
+            document.getElementById('admin-logout').addEventListener('click', adminLogout);
+            
+            // Модальное окно
+            document.getElementById('warning-ok').addEventListener('click', hideWarning);
+            
+            // Отслеживание потери фокуса
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            
+            // Загрузка данных из localStorage
+            loadFromLocalStorage();
+            
+            // Показать главную страницу
+            showHomePage();
+        });
+
+        // Функции навигации
+        function showHomePage() {
+            hideAllPages();
+            homePage.classList.remove('hidden');
+            state.currentPage = 'home';
+        }
+
+        function showTestPage() {
+            hideAllPages();
+            testPage.classList.remove('hidden');
+            state.currentPage = 'test';
+            renderQuestion();
+            updateProgress();
+            startTimer();
+        }
+
+        function showResultsPage() {
+            hideAllPages();
+            resultsPage.classList.remove('hidden');
+            state.currentPage = 'results';
+            displayResults();
+        }
+
+        function showLoginPage() {
+            hideAllPages();
+            loginPage.classList.remove('hidden');
+            state.currentPage = 'login';
+        }
+
+        function showAdminPage() {
+            if (!state.isAdmin) {
+                showLoginPage();
+                return;
+            }
+            hideAllPages();
+            adminPage.classList.remove('hidden');
+            state.currentPage = 'admin';
+            renderAdminPanel();
+        }
+
+        function hideAllPages() {
+            homePage.classList.add('hidden');
+            testPage.classList.add('hidden');
+            resultsPage.classList.add('hidden');
+            loginPage.classList.add('hidden');
+            adminPage.classList.add('hidden');
+        }
+
+        function hideWarning() {
+            warningModal.classList.add('hidden');
+        }
+
+        // Функции тестирования
+        function startTest() {
+            const userId = document.getElementById('user-id').value.trim();
+            if (!userId) {
+                alert('Пожалуйста, введите ваш идентификатор');
+                return;
+            }
+            
+            state.userId = userId;
+            state.currentQuestion = 0;
+            state.userAnswers = {};
+            state.startTime = new Date();
+            state.timeLeft = testData.timeLimit;
+            state.violations = 0;
+            
+            // Сохраняем состояние
+            saveToLocalStorage();
+            
+            showTestPage();
+        }
+
+        function renderQuestion() {
+            const questionContainer = document.getElementById('question-container');
+            const question = testData.questions[state.currentQuestion];
+            
+            let html = `
+                <div class="question">
+                    <h3>❓ Вопрос ${state.currentQuestion + 1} из ${testData.questions.length}</h3>
+                    <p>${question.text}</p>
+                    <div class="options">
+            `;
+            
+            question.options.forEach(option => {
+                const isSelected = state.userAnswers[question.id] === option.id;
+                html += `
+                    <div class="option ${isSelected ? 'selected' : ''}" data-question="${question.id}" data-option="${option.id}">
+                        ${option.text}
+                    </div>
+                `;
+            });
+            
+            html += `</div></div>`;
+            
+            questionContainer.innerHTML = html;
+            
+            // Обработчики для вариантов ответов
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const questionId = parseInt(this.getAttribute('data-question'));
+                    const optionId = parseInt(this.getAttribute('data-option'));
+                    
+                    // Снимаем выделение
+                    document.querySelectorAll(`.option[data-question="${questionId}"]`).forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Выделяем выбранный
+                    this.classList.add('selected');
+                    
+                    // Сохраняем ответ
+                    state.userAnswers[questionId] = optionId;
+                    saveToLocalStorage();
+                });
+            });
+            
+            // Обновляем кнопки навигации
+            document.getElementById('prev-question').disabled = state.currentQuestion === 0;
+            document.getElementById('next-question').disabled = state.currentQuestion === testData.questions.length - 1;
+        }
+
+        function prevQuestion() {
+            if (state.currentQuestion > 0) {
+                state.currentQuestion--;
+                renderQuestion();
+                updateProgress();
+            }
+        }
+
+        function nextQuestion() {
+            if (state.currentQuestion < testData.questions.length - 1) {
+                state.currentQuestion++;
+                renderQuestion();
+                updateProgress();
+            }
+        }
+
+        function updateProgress() {
+            const progress = document.getElementById('progress');
+            const percentage = ((state.currentQuestion + 1) / testData.questions.length) * 100;
+            progress.style.width = `${percentage}%`;
+        }
+
+        function startTimer() {
+            updateTimerDisplay();
+            
+            if (state.timerInterval) {
+                clearInterval(state.timerInterval);
+            }
+            
+            state.timerInterval = setInterval(function() {
+                state.timeLeft--;
+                updateTimerDisplay();
+                
+                if (state.timeLeft <= 0) {
+                    finishTest();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(state.timeLeft / 60);
+            const seconds = state.timeLeft % 60;
+            document.getElementById('timer').textContent = `⏱️ Осталось: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function finishTest() {
+            state.endTime = new Date();
+            
+            // Останавливаем таймер
+            if (state.timerInterval) {
+                clearInterval(state.timerInterval);
+                state.timerInterval = null;
+            }
+            
+            // Сохраняем результаты
+            saveResults();
+            
+            // Очищаем состояние теста
+            clearTestState();
+            
+            showResultsPage();
+        }
+
+        function displayResults() {
+            // Подсчитываем правильные ответы
+            let correctAnswers = 0;
+            testData.questions.forEach(question => {
+                const userAnswer = state.userAnswers[question.id];
+                if (userAnswer) {
+                    const selectedOption = question.options.find(opt => opt.id === userAnswer);
+                    if (selectedOption && selectedOption.correct) {
+                        correctAnswers++;
+                    }
+                }
+            });
+            
+            // Вычисляем время прохождения
+            const timeSpent = Math.floor((state.endTime - state.startTime) / 1000);
+            const minutes = Math.floor(timeSpent / 60);
+            const seconds = timeSpent % 60;
+            
+            // Отображаем результаты
+            document.getElementById('score-result').innerHTML = `
+                <p>✅ Правильных ответов: <strong>${correctAnswers} из ${testData.questions.length}</strong></p>
+                <p>📊 Процент: <strong>${Math.round((correctAnswers / testData.questions.length) * 100)}%</strong></p>
+            `;
+            
+            document.getElementById('time-result').innerHTML = `
+                <p>⏱️ Время: <strong>${minutes} мин. ${seconds} сек.</strong></p>
+            `;
+            
+            document.getElementById('violations-result').innerHTML = `
+                <p>🚫 Нарушений: <strong>${state.violations}</strong></p>
+            `;
+        }
+
+        // Функции безопасности
+        function handleVisibilityChange() {
+            if (state.currentPage === 'test' && document.hidden) {
+                state.violations++;
+                saveToLocalStorage();
+                warningModal.classList.remove('hidden');
+                
+                // Если слишком много нарушений, завершаем тест
+                if (state.violations >= 3) {
+                    finishTest();
+                }
+            }
+        }
+
+        // Функции администратора
+        function adminLogin() {
+            const login = document.getElementById('admin-login').value;
+            const password = document.getElementById('admin-password').value;
+            
+            // Простая проверка
+            if (login === 'admin' && password === 'admin123') {
+                state.isAdmin = true;
+                document.getElementById('nav-admin').classList.remove('hidden');
+                showAdminPage();
+            } else {
+                alert('Неверный логин или пароль');
+            }
+        }
+
+        function adminLogout() {
+            state.isAdmin = false;
+            document.getElementById('nav-admin').classList.add('hidden');
+            showHomePage();
+        }
+
+        function renderAdminPanel() {
+            // Загружаем результаты из localStorage
+            const results = JSON.parse(localStorage.getItem('testResults') || '[]');
+            const violations = JSON.parse(localStorage.getItem('testViolations') || '[]');
+            
+            // Отображаем результаты
+            const resultsTable = document.getElementById('results-table').querySelector('tbody');
+            resultsTable.innerHTML = '';
+            
+            results.forEach(result => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${result.userId}</td>
+                    <td>${new Date(result.timestamp).toLocaleDateString()}</td>
+                    <td>${result.correctAnswers}</td>
+                    <td>${result.totalQuestions}</td>
+                    <td>${Math.floor(result.timeSpent / 60)}:${(result.timeSpent % 60).toString().padStart(2, '0')}</td>
+                    <td>${result.violations}</td>
+                `;
+                resultsTable.appendChild(row);
+            });
+            
+            // Отображаем нарушения
+            const violationsTable = document.getElementById('violations-table').querySelector('tbody');
+            violationsTable.innerHTML = '';
+            
+            violations.forEach(violation => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${violation.userId}</td>
+                    <td>${new Date(violation.timestamp).toLocaleDateString()}</td>
+                    <td>${violation.type}</td>
+                    <td>${violation.info || ''}</td>
+                `;
+                violationsTable.appendChild(row);
+            });
+        }
+
+        // Функции работы с localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('testState', JSON.stringify({
+                userId: state.userId,
+                currentQuestion: state.currentQuestion,
+                userAnswers: state.userAnswers,
+                startTime: state.startTime,
+                timeLeft: state.timeLeft,
+                violations: state.violations
+            }));
+        }
+
+        function loadFromLocalStorage() {
+            const savedState = localStorage.getItem('testState');
+            if (savedState) {
+                const stateData = JSON.parse(savedState);
+                
+                // Восстанавливаем состояние если тест не завершен
+                if (stateData.userId && stateData.startTime) {
+                    state.userId = stateData.userId;
+                    state.currentQuestion = stateData.currentQuestion;
+                    state.userAnswers = stateData.userAnswers;
+                    state.startTime = new Date(stateData.startTime);
+                    state.timeLeft = stateData.timeLeft;
+                    state.violations = stateData.violations;
+                    
+                    // Предлагаем продолжить тест
+                    if (state.currentPage === 'home') {
+                        const continueTest = confirm('Обнаружен незавершенный тест. Хотите продолжить?');
+                        if (continueTest) {
+                            showTestPage();
+                        }
+                    }
+                }
+            }
+        }
+
+        function saveResults() {
+            // Сохраняем результаты
+            const results = JSON.parse(localStorage.getItem('testResults') || '[]');
+            
+            // Подсчитываем правильные ответы
+            let correctAnswers = 0;
+            testData.questions.forEach(question => {
+                const userAnswer = state.userAnswers[question.id];
+                if (userAnswer) {
+                    const selectedOption = question.options.find(opt => opt.id === userAnswer);
+                    if (selectedOption && selectedOption.correct) {
+                        correctAnswers++;
+                    }
+                }
+            });
+            
+            // Вычисляем время прохождения
+            const timeSpent = Math.floor((state.endTime - state.startTime) / 1000);
+            
+            results.push({
+                userId: state.userId,
+                timestamp: state.endTime,
+                correctAnswers: correctAnswers,
+                totalQuestions: testData.questions.length,
+                timeSpent: timeSpent,
+                violations: state.violations
+            });
+            
+            localStorage.setItem('testResults', JSON.stringify(results));
+            
+            // Сохраняем нарушения
+            if (state.violations > 0) {
+                const violations = JSON.parse(localStorage.getItem('testViolations') || '[]');
+                
+                violations.push({
+                    userId: state.userId,
+                    timestamp: state.endTime,
+                    type: 'Переключение вкладок',
+                    info: `Нарушений: ${state.violations}`
+                });
+                
+                localStorage.setItem('testViolations', JSON.stringify(violations));
+            }
+        }
+
+        function clearTestState() {
+            localStorage.removeItem('testState');
+        }
+    </script>
+</body>
+</html>
