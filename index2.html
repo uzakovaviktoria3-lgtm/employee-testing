@@ -1094,6 +1094,57 @@
             }
         }
 
-        function saveResults() {
+         function saveResults() {
             // Сохраняем результаты
-            const results = JSON.parse(localStorage.getItem('testResults') || '
+            const results = JSON.parse(localStorage.getItem('testResults') || '[]');
+            
+            // Подсчитываем правильные ответы (кроме вопроса с письменным ответом)
+            let correctAnswers = 0;
+            testData.questions.forEach(question => {
+                if (!question.customAnswer) {
+                    const userAnswer = state.userAnswers[question.id];
+                    if (userAnswer) {
+                        const selectedOption = question.options.find(opt => opt.id === userAnswer);
+                        if (selectedOption && selectedOption.correct) {
+                            correctAnswers++;
+                        }
+                    }
+                }
+            });
+            
+            // Вычисляем время прохождения
+            const timeSpent = Math.floor((state.endTime - state.startTime) / 1000);
+            
+            results.push({
+                userId: state.userId,
+                timestamp: state.endTime,
+                correctAnswers: correctAnswers,
+                totalQuestions: testData.questions.length - 1, // минус вопрос с письменным ответом
+                timeSpent: timeSpent,
+                violations: state.violations,
+                customAnswer: state.customAnswers[12] || '' // сохраняем письменный ответ
+            });
+            
+            localStorage.setItem('testResults', JSON.stringify(results));
+            
+            // Сохраняем нарушения
+            if (state.violations > 0) {
+                const violations = JSON.parse(localStorage.getItem('testViolations') || '[]');
+                
+                violations.push({
+                    userId: state.userId,
+                    timestamp: state.endTime,
+                    type: 'Переключение вкладок',
+                    info: `Нарушений: ${state.violations}`
+                });
+                
+                localStorage.setItem('testViolations', JSON.stringify(violations));
+            }
+        }
+
+        function clearTestState() {
+            localStorage.removeItem('testState');
+        }
+    </script>
+</body>
+</html>
